@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "run": "cd src && node index.js",
+    "start": "cd src && node index.js",
     "test": "jest",
     "lint": "eslint ."
   },
