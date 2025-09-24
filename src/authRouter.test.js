@@ -70,6 +70,15 @@ test('bad register', async () => {
   expect(registerResBad.body.message).toBe('name, email, and password are required');
 });
 
+//WIP
+// test('unauthorized createFranchise', async () => {
+//   // const testBadUser = { name: randomName(), email: 'reg@test.com'};
+//   const createFranchiseResBad = await request(app).post('/api/franchise').send(testUser);
+//   expect(registerResBad.status).not.toBe(200);
+//   expect(registerResBad.status).toBe(400);
+//   expect(registerResBad.body.message).toBe('name, email, and password are required');
+// });
+
 // unauthorized 401 should result if a normal user does something that only
 // an admin can do
 
