@@ -6,23 +6,23 @@ let testUserAuthToken;
 
 const { Role, DB } = require('../database/database.js');
 
-async function createAdminUser() {
-  let user = { password: 'toomanysecrets', roles: [{ role: Role.Admin }] };
-  user.name = randomName();
-  user.email = user.name + '@admin.com';
+// async function createAdminUser() {
+//   let user = { password: 'toomanysecrets', roles: [{ role: Role.Admin }] };
+//   user.name = randomName();
+//   user.email = user.name + '@admin.com';
 
-  user = await DB.addUser(user);
-  return { ...user, password: 'toomanysecrets' };
-}
+//   user = await DB.addUser(user);
+//   return { ...user, password: 'toomanysecrets' };
+// }
 
-async function createFranchiseeUser() {
-  let user = { password: 'toomanysecrets', roles: [{ role: Role.Franchisee }] };
-  user.name = randomName();
-  user.email = user.name + '@franchisee.com';
+// async function createFranchiseeUser() {
+//   let user = { password: 'toomanysecrets', roles: [{ role: Role.Franchisee }] };
+//   user.name = randomName();
+//   user.email = user.name + '@franchisee.com';
 
-  user = await DB.addUser(user);
-  return { ...user, password: 'toomanysecrets' };
-}
+//   user = await DB.addUser(user);
+//   return { ...user, password: 'toomanysecrets' };
+// }
 
 function randomName() {
   return Math.random().toString(36).substring(2, 12);
@@ -48,6 +48,12 @@ test('login', async () => {
 function expectValidJwt(potentialJwt) {
   expect(potentialJwt).toMatch(/^[a-zA-Z0-9\-_]*\.[a-zA-Z0-9\-_]*\.[a-zA-Z0-9\-_]*$/);
 }
+
+test('unauthorized login', async () => {
+  const testUnauthorizedUser = { name: 'pizza diner', email: 'reg@test.com', password: 'g' };
+  const loginResBad = await request(app).put('/api/auth').send(testUnauthorizedUser);
+  expect(loginResBad.status).toBe(401);
+});
 
 // put this function inside of a testing function if you feel like you need more time
 
