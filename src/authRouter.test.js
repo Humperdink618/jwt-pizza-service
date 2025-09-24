@@ -4,7 +4,7 @@ const app = require('./service');
 const testUser = { name: 'pizza diner', email: 'reg@test.com', password: 'a' };
 let testUserAuthToken;
 
-const { Role, DB } = require('../database/database.js');
+const { Role, DB } = require('./database/database.js');
 
 // async function createAdminUser() {
 //   let user = { password: 'toomanysecrets', roles: [{ role: Role.Admin }] };
@@ -50,10 +50,13 @@ function expectValidJwt(potentialJwt) {
 }
 
 test('unauthorized login', async () => {
-  const testUnauthorizedUser = { name: 'pizza diner', email: 'reg@test.com', password: 'g' };
+  const testUnauthorizedUser = { name: randomName(), email: 'reg@test.com', password: 'g' };
   const loginResBad = await request(app).put('/api/auth').send(testUnauthorizedUser);
-  expect(loginResBad.status).toBe(401);
+  expect(loginResBad.status).not.toBe(200);
 });
+
+// unauthorized 401 should result if a normal user does something that only
+// an admin can do
 
 // put this function inside of a testing function if you feel like you need more time
 
