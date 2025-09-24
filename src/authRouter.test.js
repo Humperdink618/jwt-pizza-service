@@ -6,23 +6,23 @@ let testUserAuthToken;
 
 const { Role, DB } = require('./database/database.js');
 
-async function createAdminUser() {
-  let user = { password: 'toomanysecrets', roles: [{ role: Role.Admin }] };
-  user.name = randomName();
-  user.email = user.name + '@admin.com';
+// async function createAdminUser() {
+//   let user = { password: 'toomanysecrets', roles: [{ role: Role.Admin }] };
+//   user.name = randomName();
+//   user.email = user.name + '@admin.com';
 
-  user = await DB.addUser(user);
-  return { ...user, password: 'toomanysecrets' };
-}
+//   user = await DB.addUser(user);
+//   return { ...user, password: 'toomanysecrets' };
+// }
 
-async function createFranchiseeUser() {
-  let user = { password: 'toomanysecrets', roles: [{ role: Role.Franchisee }] };
-  user.name = randomName();
-  user.email = user.name + '@franchisee.com';
+// async function createFranchiseeUser() {
+//   let user = { password: 'toomanysecrets', roles: [{ role: Role.Franchisee }] };
+//   user.name = randomName();
+//   user.email = user.name + '@franchisee.com';
 
-  user = await DB.addUser(user);
-  return { ...user, password: 'toomanysecrets' };
-}
+//   user = await DB.addUser(user);
+//   return { ...user, password: 'toomanysecrets' };
+// }
 
 function randomName() {
   return Math.random().toString(36).substring(2, 12);
@@ -69,6 +69,22 @@ test('bad register', async () => {
   expect(registerResBad.status).toBe(400);
   expect(registerResBad.body.message).toBe('name, email, and password are required');
 });
+
+// test('create order', async () => {
+//   const loginRes = await request(app).put('/api/auth').send(testUser);
+//   expect(loginRes.status).toBe(200);
+//   expectValidJwt(loginRes.body.token);
+
+//   const expectedUser = { ...testUser, roles: [{ role: 'diner' }] };
+//   delete expectedUser.password;
+//   expect(loginRes.body.user).toMatchObject(expectedUser);
+
+//   const testItems = { menuId: 1, description: "Veggie", price: 0.05 };
+//   const testOrder = { franchiseId: 1, storeId: 1, items: [testItems] };
+  
+//   // const createOrderRes = await request(app).post('/api/order').send(testOrder).set('Authorization', `Bearer ${testUserAuthToken}`);
+//   // expect(createOrderRes.status).toBe(200);
+// });
 
 test('unauthorized createFranchise', async () => {
   const createFranchiseResBad = await request(app).post('/api/franchise').send(testUser);
