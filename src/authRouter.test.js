@@ -6,23 +6,23 @@ let testUserAuthToken;
 
 const { Role, DB } = require('./database/database.js');
 
-// async function createAdminUser() {
-//   let user = { password: 'toomanysecrets', roles: [{ role: Role.Admin }] };
-//   user.name = randomName();
-//   user.email = user.name + '@admin.com';
+async function createAdminUser() {
+  let user = { password: 'toomanysecrets', roles: [{ role: Role.Admin }] };
+  user.name = randomName();
+  user.email = user.name + '@admin.com';
 
-//   user = await DB.addUser(user);
-//   return { ...user, password: 'toomanysecrets' };
-// }
+  user = await DB.addUser(user);
+  return { ...user, password: 'toomanysecrets' };
+}
 
-// async function createFranchiseeUser() {
-//   let user = { password: 'toomanysecrets', roles: [{ role: Role.Franchisee }] };
-//   user.name = randomName();
-//   user.email = user.name + '@franchisee.com';
+async function createFranchiseeUser() {
+  let user = { password: 'toomanysecrets', roles: [{ role: Role.Franchisee }] };
+  user.name = randomName();
+  user.email = user.name + '@franchisee.com';
 
-//   user = await DB.addUser(user);
-//   return { ...user, password: 'toomanysecrets' };
-// }
+  user = await DB.addUser(user);
+  return { ...user, password: 'toomanysecrets' };
+}
 
 function randomName() {
   return Math.random().toString(36).substring(2, 12);
@@ -76,6 +76,19 @@ test('unauthorized createFranchise', async () => {
   expect(createFranchiseResBad.status).toBe(401);
   expect(createFranchiseResBad.body.message).toBe('unauthorized');
 });
+
+// test('createFranchise', async () => {
+//   const testAdminUser = createAdminUser();
+//   const registerRes = await request(app).post('/api/auth').send(testAdminUser);
+//   testUserAuthToken = registerRes.body.token;
+//   expectValidJwt(testUserAuthToken);
+//   const testFranchise = { name: 'pizzaPlace', admins: [{email: testAdminUser.email}]};
+//   const createFranchiseRes = await (await request(app).post('/api/franchise').set('Authorization', `Bearer ${testUserAuthToken}`).send(testFranchise));
+//   expect(createFranchiseRes.status).toBe(200);
+//   // expect(createFranchiseResBad.status).not.toBe(200);
+//   // expect(createFranchiseResBad.status).toBe(401);
+//   // expect(createFranchiseResBad.body.message).toBe('unauthorized');
+// });
 
 
 
