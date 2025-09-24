@@ -55,6 +55,13 @@ test('unauthorized login', async () => {
   expect(loginResBad.status).not.toBe(200);
 });
 
+// test logout functionality
+test('logout user', async () => {
+    const logoutRes = await request(app).delete('/api/auth/').set('Authorization', `Bearer ${testUserAuthToken}`);
+    expect(logoutRes.status).toBe(200);
+    expect(logoutRes.body.message).toBe('logout successful');
+});
+
 // unauthorized 401 should result if a normal user does something that only
 // an admin can do
 
@@ -63,3 +70,5 @@ test('unauthorized login', async () => {
 // if (process.env.VSCODE_INSPECTOR_OPTIONS) {
 //   jest.setTimeout(60 * 1000 * 5); // 5 minutes
 // }
+
+// for logout 
