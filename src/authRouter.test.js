@@ -62,6 +62,14 @@ test('logout user', async () => {
     expect(logoutRes.body.message).toBe('logout successful');
 });
 
+test('bad register', async () => {
+  const testBadUser = { name: randomName(), email: 'reg@test.com'};
+  const registerResBad = await request(app).post('/api/auth').send(testBadUser);
+  expect(registerResBad.status).not.toBe(200);
+  expect(registerResBad.status).toBe(400);
+  expect(registerResBad.body.message).toBe('name, email, and password are required');
+});
+
 // unauthorized 401 should result if a normal user does something that only
 // an admin can do
 
@@ -70,5 +78,3 @@ test('logout user', async () => {
 // if (process.env.VSCODE_INSPECTOR_OPTIONS) {
 //   jest.setTimeout(60 * 1000 * 5); // 5 minutes
 // }
-
-// for logout 
