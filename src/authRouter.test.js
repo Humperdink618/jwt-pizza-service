@@ -72,6 +72,20 @@ test('bad register', async () => {
   expect(registerResBad.body.message).toBe('name, email, and password are required');
 });
 
+// test('update user bad', async () => {
+//   const loginRes = await request(app).put('/api/auth').send(testUser);
+//   console.log(loginRes.body);
+//   expect(loginRes.status).toBe(200);
+
+//   const updateResBad = await (await request(app).put(`/api/user/${loginRes.body.user.id}`).set('Authorization', `Bearer ${testUserAuthToken}`).send(testUser));
+//   console.log(updateResBad.body.message);
+//   console.log(updateResBad.body);
+//   console.log(updateResBad.status);
+//   expect(updateResBad.status).not.toBe(200);
+
+//   // expect(updateResBad.status).toBe(403);
+//   // expect(updateResBad.body.message).toBe('unauthorized');
+// });
 // test('update user', async () => {
 //   const testNewAdminUser = createAdminUser();
 //   // console.log(await testNewAdminUser);
