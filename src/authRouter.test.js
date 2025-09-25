@@ -6,14 +6,15 @@ let testUserAuthToken;
 
 const { Role, DB } = require('./database/database.js');
 
-async function createAdminUser() {
-  let user = { password: 'toomanysecrets', roles: [{ role: Role.Admin }] };
-  user.name = randomName();
-  user.email = user.name + '@admin.com';
+// async function createAdminUser() {
+//   let user = { password: 'toomanysecrets', roles: [{ role: Role.Admin }] };
+//   user.name = randomName();
+//   user.email = user.name + '@admin.com';
 
-  user = await DB.addUser(user);
-  return { ...user, password: 'toomanysecrets' };
-}
+//   user = await DB.addUser(user);
+//   // console.log(user);
+//   return { ...user, password: 'toomanysecrets' };
+// }
 
 // async function createFranchiseeUser() {
 //   let user = { password: 'toomanysecrets', roles: [{ role: Role.Franchisee }] };
@@ -37,6 +38,7 @@ beforeAll(async () => {
 
 test('login', async () => {
   const loginRes = await request(app).put('/api/auth').send(testUser);
+  // console.log(loginRes.body);
   expect(loginRes.status).toBe(200);
   expectValidJwt(loginRes.body.token);
 
@@ -71,17 +73,50 @@ test('bad register', async () => {
 });
 
 // test('update user', async () => {
-//   const loginRes = await request(app).put('/api/auth').send(testUser);
-//   expect(loginRes.status).toBe(200);
-//   expectValidJwt(loginRes.body.token);
+//   const testNewAdminUser = createAdminUser();
+//   // console.log(await testNewAdminUser);
+//   const testAdminUser = { name: `${(await testNewAdminUser).name}`, email: `${(await testNewAdminUser).email}`, password: `${(await testNewAdminUser).password}` };
+//   const loginAdminRes = await request(app).put('/api/auth').send(await testAdminUser);
+//   // console.log(loginRes.body);
+//   expect(loginAdminRes.status).toBe(200);
+//   expectValidJwt(loginAdminRes.body.token);
 
-//   const expectedUser = { ...testUser, roles: [{ role: 'diner' }] };
+//   const expectedUser = { ...testNewAdminUser, roles: [{ role: Role.Admin }] };
 //   delete expectedUser.password;
-//   expect(loginRes.body.user).toMatchObject(expectedUser);
-//   const testAdminUser = createAdminUser();
-//   const updateUserRes = await request(app).put('/api/user/:userId').send(testAdminUser).set('Authorization', `Bearer ${testUserAuthToken}`);
-//   expect(updateUserRes.status).toBe(200);
-//   expectValidJwt(updateUserRes.body.token);
+//   expect(loginAdminRes.body.user).toMatchObject(expectedUser);
+
+//   console.log(loginAdminRes.body.roles);
+
+//   let testAdminAuthToken = loginAdminRes.body.token;
+//   expectValidJwt(testAdminAuthToken);
+
+//   const updateAdminRes = await (await request(app).put(`/api/user/${loginAdminRes.body.user.id}`).set('Authorization', `Bearer ${testAdminAuthToken}`).send(await testAdminUser));
+//   console.log(updateAdminRes.body);
+//   expect(updateAdminRes.status).toBe(200);
+//   // const testAdminUser = { name: `${(await testNewAdminUser).name}`, email: `${(await testNewAdminUser).email}`, password: `${(await testNewAdminUser).password}` };
+//   // const registerAdminRes = await request(app).post('/api/auth').send(testAdminUser);
+//   // let testAdminAuthToken = registerAdminRes.body.token;
+//   // console.log(registerAdminRes.body.role);
+//   // expect(registerAdminRes.status).toBe(200);
+//   // expectValidJwt(registerAdminRes.body.token);
+
+//   // const getUserRes = (await request(app).get('/api/user/me').set('Authorization', `Bearer ${testAdminAuthToken}`));
+//   // console.log(getUserRes.body);
+//   // expect(getUserRes.status).toBe(200);
+
+
+//   // expectValidJwt(registerAdminRes.body.token);
+
+//   // const expectedUser = { ...testUser, roles: [{ role: 'diner' }] };
+//   // delete expectedUser.password;
+//   // expect(loginRes.body.user).toMatchObject(expectedUser);
+//   // const testAdminUser = createAdminUser();
+
+//   // console.log(testAdminUser);
+//   // .set('Authorization', `Bearer ${testUserAuthToken}`)
+//   // const updateUserRes = await request(app).put('/api/user/:userId').send(testAdminUser);
+//   // expect(updateUserRes.status).toBe(200);
+//   // expectValidJwt(updateUserRes.body.token);
 
 //   // const expectedUser = { ...testUser, roles: [{ role: 'admin' }] };
 //   // delete expectedUser.password;
@@ -115,6 +150,9 @@ test('get menu', async () => {
 
   const getMenuRes = await request(app).get('/api/order/menu/');
   expect(getMenuRes.status).toBe(200);
+  expect(getMenuRes.body[0]).toHaveProperty('image');
+  expect(getMenuRes.body[0].image).toBe('pizza1.png');
+  
 });
 
 test('unauthorized createFranchise', async () => {
