@@ -1,10 +1,10 @@
 const request = require('supertest');
 const app = require('./service');
 
-const testUser = { name: 'pizza diner', email: 'reg@test.com', password: 'a' };
-let testUserAuthToken;
+const testUserAdmin = { name: 'pizza admin', email: 'admin@test.com', password: 'a' };
+let testUserAdminAuthToken;
 
-const testFranchise = { name: 'pizzaPocket', admins: [{ email: 'reg@test.com', id: 4, name: 'pizza franchisee' }], id: 1 };
+const testFranchise = { name: 'pizzaPocket', admins: [{ email: 'admin@test.com', id: 4, name: 'pizza franchisee' }], id: 1 };
 const testStore = { id: 1, name: 'SLC', totalRevenue: 0 };
 
 const { Role, DB } = require('./database/database.js');
@@ -40,26 +40,26 @@ function expectValidJwt(potentialJwt) {
 //franchise tests
 beforeAll(async () => {
   //register a user to use for testing
-  let user = await createAdminUser(testUser.email);
+  let user = await createAdminUser(testUserAdmin.email);
   const loginRes = await request(app).put('/api/auth').send(user);
 
-  testUserAuthToken = loginRes.body.token;
-  testUserId = loginRes.body.user.id;
+  testUserAdminAuthToken = loginRes.body.token;
+  testUserAdminId = loginRes.body.user.id;
 
   //create franchise in db associated with test user
   createFranchiseRes = await request(app)
     .post('/api/franchise')
-    .set('Authorization', `Bearer ${testUserAuthToken}`)
+    .set('Authorization', `Bearer ${testUserAdminAuthToken}`)
     .send(testFranchise);
 
   testFranchiseId = createFranchiseRes.body.id;
   testStore.franchiseId = testFranchiseId;
 }); 
 
-test('get franchises', async () => {
+test('get all franchises', async () => {
     getFranchisesRes = await request(app)
     .get('/api/franchise?page=0&limit=10&name=*');
-    console.log(getFranchisesRes.body);
+    // console.log(getFranchisesRes.body);
     expect(getFranchisesRes.status).toBe(200); 
     expect(getFranchisesRes.body).toHaveProperty('franchises');
     // expect(getFranchisesRes)
@@ -82,4 +82,26 @@ test('create franchise bad', async () => {
     expect(createFranchiseResBad.status).toBe(403);
     expect(createFranchiseResBad.body.message).toBe('unable to create a franchise');
 });
+
+test('delete franchise', async () => {
+    
+    const deleteFranchiseRes = await request(app)
+    .delete('/api/franchise/:franchiseId')
+    .set('Authorization', `Bearer ${testUserAdminAuthToken}`);
+    expect(deleteFranchiseRes.status).toBe(200);
+    expect(deleteFranchiseRes.body.message).toBe('franchise deleted');
+});
+
+
+
+
+// test('get user franchises', async () => {
+//     getUserFranchisesRes = await request(app)
+//     .get('/api/franchise/:userId')
+//     .set('Authorization', `Bearer ${testUserAuthToken}`);
+//     console.log(getUserFranchisesRes.body);
+//     expect(getUserFranchisesRes.status).toBe(200); 
+//     // expect(getUserFranchisesRes.body).toHaveProperty('name');
+//     // expect(getFranchisesRes)
+// });
 
