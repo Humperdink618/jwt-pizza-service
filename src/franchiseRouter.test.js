@@ -1,11 +1,12 @@
 const request = require('supertest');
 const app = require('./service');
 
-const testUser = { name: 'pizza admin', email: 'reg@test.com', password: 'a' };
+const testUser = { name: 'pizza diner', email: 'reg@test.com', password: 'a' };
 let testUserAuthToken;
 
 const testFranchise = { name: 'pizzaPocket', admins: [{ email: 'reg@test.com', id: 4, name: 'pizza franchisee' }], id: 1 };
 const testStore = { id: 1, name: 'SLC', totalRevenue: 0 };
+// const testOrder = { title:"Muddy Hobo", description: "No topping, no sauce, just carbs", image:"pizza9.png", price: 0.0001 };
 
 const { Role, DB } = require('./database/database.js');
 
@@ -45,16 +46,25 @@ beforeAll(async () => {
 
   testUserAuthToken = loginRes.body.token;
   testUserId = loginRes.body.user.id;
-
+  
   //create franchise in db associated with test user
   createFranchiseRes = await request(app)
     .post('/api/franchise')
     .set('Authorization', `Bearer ${testUserAuthToken}`)
     .send(testFranchise);
-
+//   expect(createFranchiseRes.status).toBe(200);
   testFranchiseId = createFranchiseRes.body.id;
   testStore.franchiseId = testFranchiseId;
 }); 
+
+test('get authenticated user', async () => {
+    getAuthUserRes = await request(app)
+    .get('/api/user/me')
+    .set('Authorization', `Bearer ${testUserAuthToken}`);
+    console.log(getAuthUserRes.body);
+    expect(getAuthUserRes.status).toBe(200);
+
+});
 
 test('get all franchises', async () => {
     getFranchisesRes = await request(app)
@@ -66,21 +76,32 @@ test('get all franchises', async () => {
 });
 
 test('create franchise bad', async () => {
-    const testBadUser = { name: randomName(), email: 'blarg@test.com', password: 'fish' }; 
-    const registerBadRes = await request(app).post('/api/auth').send(testBadUser);
+    testBadUser = { name: randomName(), email: 'blarg@test.com', password: 'fish' }; 
+    registerBadRes = await request(app).post('/api/auth').send(testBadUser);
     testBadUserAuthToken = registerBadRes.body.token;
     testBadUser.id = registerBadRes.body.user.id;
     expectValidJwt(testBadUserAuthToken);
 
-    const testBadFranchise = { name: 'pizzaPalooza', admins: [{ email: 'blarg@test.com'}]};
+    testBadFranchise = { name: 'pizzaPalooza', admins: [{ email: 'blarg@test.com'}]};
 
-    const createFranchiseResBad = await request(app)
+    createFranchiseResBad = await request(app)
     .post('/api/franchise')
     .set('Authorization', `Bearer ${testBadUserAuthToken}`)
     .send(testBadFranchise);
     expect(createFranchiseResBad.status).not.toBe(200);
     expect(createFranchiseResBad.status).toBe(403);
     expect(createFranchiseResBad.body.message).toBe('unable to create a franchise');
+});
+
+// still working on this one
+test('get user franchises', async () => {
+    getUserFranchisesRes = await request(app)
+    .get(`/api/franchise/${testUserId}`)
+    .set('Authorization', `Bearer ${testUserAuthToken}`);
+    // console.log(getUserFranchisesRes.body);
+    expect(getUserFranchisesRes.status).toBe(200); 
+    // expect(getUserFranchisesRes.body).toHaveProperty('name');
+    // expect(getFranchisesRes)
 });
 
 // test('create store', async () => {
@@ -91,9 +112,18 @@ test('create franchise bad', async () => {
 //     expect(createStoreRes.status).toBe(200);
 // });
 
+// test('add an item to the menu', async () => {
+//     testAddOrderRes = await request(app)
+//     .put('/api/order/menu')
+//     .set('Authorization', `Bearer ${testUserAuthToken}`)
+//     .send(testOrder);
+
+//     expect(testAddOrderRes.status).toBe(200);
+// });
+
 test('delete franchise', async () => {
     
-    const deleteFranchiseRes = await request(app)
+    deleteFranchiseRes = await request(app)
     .delete('/api/franchise/:franchiseId')
     .set('Authorization', `Bearer ${testUserAuthToken}`);
     expect(deleteFranchiseRes.status).toBe(200);
@@ -110,15 +140,9 @@ test('delete franchise', async () => {
 //     expect(createUserFranchiseRes.status).toBe(200); 
 // })
 
-test('get user franchises', async () => {
-    getUserFranchisesRes = await request(app)
-    .get(`/api/franchise/${testUserId}`)
-    .set('Authorization', `Bearer ${testUserAuthToken}`);
-    console.log(getUserFranchisesRes.body);
-    expect(getUserFranchisesRes.status).toBe(200); 
-    // expect(getUserFranchisesRes.body).toHaveProperty('name');
-    // expect(getFranchisesRes)
-});
+
+
+
 // test('get user franchises', async () => {
 //     getUserFranchisesRes = await request(app)
 //     .get('/api/franchise/:userId')
