@@ -4,6 +4,8 @@ const app = require('./service');
 const testUser = { name: 'pizza diner', email: 'reg@test.com', password: 'a' };
 let testUserAuthToken;
 
+// may need to find a way to refresh and restart the database and then mock it out.
+
 // const testOrder = { title:"Muddy Hobo", description: "No topping, no sauce, just carbs", image:"pizza9.png", price: 0.0001 };
 
 // const { Role, DB } = require('./database/database.js');
