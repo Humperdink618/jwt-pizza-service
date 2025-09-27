@@ -75,7 +75,7 @@ beforeAll(async () => {
     .set('Authorization', `Bearer ${testAdminUserAuthToken}`)
     .send(testFranchise);
 //   expect(createFranchiseRes.status).toBe(200);
-  console.log(createFranchiseRes.body);
+//   console.log(createFranchiseRes.body);
   testFranchiseId = createFranchiseRes.body.id;
   testStore.franchiseId = testFranchiseId;
 //   console.log(testFranchiseId);
@@ -130,6 +130,33 @@ test('get user franchises', async () => {
     // expect(getFranchisesRes)
 });
 
+test('create store bad', async () => {
+     const testStoreBad = {franchiseId: testAdminUser.id, name:"Toledo"};
+     const createStoreResBad = await request(app)
+    .post('/api/franchise/:franchiseId/store')
+    .set('Authorization', `Bearer ${testAdminUserAuthToken}`)
+    .send(testStoreBad);
+    expect(createStoreResBad.status).not.toBe(200);
+    expect(createStoreResBad.status).toBe(403);
+    expect(createStoreResBad.body.message).toBe('unable to create a store');
+    // console.log(createStoreRes.body.message);
+//     expect(createStoreRes.status).toBe(200);
+});
+
+test('update user', async () => {
+    // const testBadAuth = 'nanu nanu';
+    // const testBadUser3 = { name: randomName(), email: 'blarg@test.com', password: 'fish' }; 
+    const updateUserResBad = await request(app)
+    .put('/api/user/:userId')
+    .set('Authorization', `Bearer ${testAdminUserAuthToken}`)
+    .send(testAdminUser);
+    expect(updateUserResBad.status).not.toBe(200);
+    expect(updateUserResBad.status).toBe(403);
+    expect(updateUserResBad.body.message).toBe('unauthorized');
+    // console.log(createStoreRes.body.message);
+//     expect(createStoreRes.status).toBe(200);
+});
+
 // test('create store', async () => {
 //     const createStoreRes = await request(app)
 //     .post('/api/franchise/:franchiseId/store')
@@ -163,6 +190,16 @@ test('delete franchise', async () => {
     .set('Authorization', `Bearer ${testAdminUserAuthToken}`);
     expect(deleteFranchiseRes.status).toBe(200);
     expect(deleteFranchiseRes.body.message).toBe('franchise deleted');
+});
+
+test('delete store bad', async () => {
+    // const badAuthToken = 'nanu nanu';
+    const deleteStoreResBad = await request(app)
+    .delete('/api/franchise/:franchiseId/store/:storeId')
+    .set('Authorization', `Bearer ${testAdminUserAuthToken}`);
+    expect(deleteStoreResBad.status).not.toBe(200);
+    expect(deleteStoreResBad.status).toBe(403);
+    expect(deleteStoreResBad.body.message).toBe('unable to delete a store');
 });
 
 // test('create new user franchise', async () => {
