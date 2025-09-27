@@ -6,7 +6,7 @@ let testUserAuthToken;
 
 // const testOrder = { title:"Muddy Hobo", description: "No topping, no sauce, just carbs", image:"pizza9.png", price: 0.0001 };
 
-const { Role, DB } = require('./database/database.js');
+// const { Role, DB } = require('./database/database.js');
 // const { setAuth } = require('./routes/authRouter.js');
 
 // async function createAdminUser() {
@@ -54,24 +54,25 @@ beforeAll(async () => {
   const registerRes = await request(app).post('/api/auth').send(testUser);
   testUserAuthToken = registerRes.body.token;
   testUser.id = registerRes.body.user.id;
+  // console.log(registerRes.body.user.roles);
   expectValidJwt(testUserAuthToken);
 
-  loginRes = await request(app)
   loginRes = await request(app).put('/api/auth').send(testUser);
   console.log("wassup!");
   // console.log(loginRes);
+  // console.log(loginRes.body.user.roles);
 });
 
 
 test('login', async () => {
-  const loginRes = await request(app).put('/api/auth').send(testUser);
-  // console.log(loginRes.body);
+  loginRes = await request(app).put('/api/auth').send(testUser);
+  console.log(loginRes.body);
   expect(loginRes.status).toBe(200);
   expectValidJwt(loginRes.body.token);
 
-  // const expectedUser = { ...testUser, roles: [{ role: 'diner' }] };
-  // delete expectedUser.password;
-  // expect(loginRes.body.user).toMatchObject(expectedUser);
+  const expectedUser = { ...testUser, roles: [{ role: 'diner' }] };
+  delete expectedUser.password;
+  expect(loginRes.body.user).toMatchObject(expectedUser);
 });
 
 function expectValidJwt(potentialJwt) {
