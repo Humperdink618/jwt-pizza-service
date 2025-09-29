@@ -141,6 +141,8 @@ test('get user franchises', async () => {
 
 // test order creation functionality
 test('create order', async () => {
+    console.log(testFranchiseId);
+    console.log(testStoreId);
     // let testOrder = {franchiseId: 1, storeId: 1, items:[{ menuId: 1, description: "Veggie", price: 0.0038 }]};
     let testOrder = {franchiseId: testFranchiseId, storeId: testStoreId, items:[{ menuId: 1, description: "Veggie", price: 0.0038 }]};
     const testAddOrderRes = await request(app)
