@@ -134,28 +134,12 @@ test('get user franchises', async () => {
 
 // test order creation functionality
 test('create order', async () => {
-    // let testStore = {franchiseId: testFranchiseId, name: randomName()};
-    // const createStoreRes = await request(app)
-    // .post(`/api/franchise/${testFranchiseId}/store`)
-    // .set('Authorization', `Bearer ${testAdminUserAuthToken}`)
-    // .send(testStore);
-    // testStoreId = createStoreRes.body.id;
-    // expect(createStoreRes.status).toBe(200);
-
-    // const getMenuRes = await request(app).get('/api/order/menu/');
-    // // console.log(getMenuRes.body);
-    // expect(getMenuRes.status).toBe(200);
-
-    // // console.log(getMenuRes.body[0].id);
-    // expect(getMenuRes.body).toBeInstanceOf(Array);
-    // let testMenuId = getMenuRes.body[0].id;
-    
     let testOrder = {franchiseId: 1, storeId: 1, items:[{ menuId: 1, description: "Veggie", price: 0.0038 }]};
     const testAddOrderRes = await request(app)
     .post('/api/order')
     .set('Authorization', `Bearer ${testAdminUserAuthToken}`)
     .send(testOrder);
-
+    console.log(testAddOrderRes.body);
     expect(testAddOrderRes.status).toBe(200);
 });
 
