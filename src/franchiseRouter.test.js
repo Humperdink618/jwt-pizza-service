@@ -7,7 +7,7 @@ let testAdminUserAuthToken;
 let testAdminUserId;
 let testFranchiseId;
 let testStoreId;
-let testMenuId;
+
 
 const { Role, DB } = require('./database/database.js');
 
