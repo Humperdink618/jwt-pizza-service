@@ -60,6 +60,13 @@ beforeAll(async () => {
   
   expect(createFranchiseRes.status).toBe(200);
   testFranchiseId = createFranchiseRes.body.id;
+  let testStore = {franchiseId: testFranchiseId, name: randomName()};
+  const createStoreRes = await request(app)
+    .post(`/api/franchise/${testFranchiseId}/store`)
+    .set('Authorization', `Bearer ${testAdminUserAuthToken}`)
+    .send(testStore);
+  testStoreId = createStoreRes.body.id;
+  expect(createStoreRes.status).toBe(200);
 }); 
 
 // test to get an authenticated admin user
@@ -134,7 +141,8 @@ test('get user franchises', async () => {
 
 // test order creation functionality
 test('create order', async () => {
-    let testOrder = {franchiseId: 1, storeId: 1, items:[{ menuId: 1, description: "Veggie", price: 0.0038 }]};
+    // let testOrder = {franchiseId: 1, storeId: 1, items:[{ menuId: 1, description: "Veggie", price: 0.0038 }]};
+    let testOrder = {franchiseId: testFranchiseId, storeId: testStoreId, items:[{ menuId: 1, description: "Veggie", price: 0.0038 }]};
     const testAddOrderRes = await request(app)
     .post('/api/order')
     .set('Authorization', `Bearer ${testAdminUserAuthToken}`)
