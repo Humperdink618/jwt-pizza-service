@@ -41,7 +41,6 @@ beforeAll(async () => {
 
   testUserAuthToken = loginRes.body.token;
   expectValidJwt(testUserAuthToken);
-  testUserId = loginRes.body.user.id;
 
   const loginAdminRes = await request(app).put('/api/auth').send(adminUser);
 
