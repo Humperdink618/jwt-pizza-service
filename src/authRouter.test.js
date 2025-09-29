@@ -61,6 +61,23 @@ test('bad register', async () => {
   expect(registerResBad.body.message).toBe('name, email, and password are required');
 });
 
+// test get menu functionality
+test('get menu', async () => {
+  const loginRes = await request(app).put('/api/auth').send(testUser);
+  expect(loginRes.status).toBe(200);
+  expectValidJwt(loginRes.body.token);
+
+  const expectedUser = { ...testUser, roles: [{ role: 'diner' }] };
+  delete expectedUser.password;
+  expect(loginRes.body.user).toMatchObject(expectedUser);
+
+  const getMenuRes = await request(app).get('/api/order/menu/');
+  expect(getMenuRes.status).toBe(200);
+  expect(getMenuRes.body[0]).toHaveProperty('image');
+  expect(getMenuRes.body[0].image).toBe('pizza1.png');
+  
+});
+
 // notes:
 
 // unauthorized 401 should result if a normal user does something that only

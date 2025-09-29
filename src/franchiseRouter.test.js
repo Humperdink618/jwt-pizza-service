@@ -134,7 +134,17 @@ test('get user franchises', async () => {
 
 // test order creation functionality
 test('create order', async () => {
+    let testStore = {franchiseId: testFranchiseId, name: randomName()};
+    const createStoreRes = await request(app)
+    .post(`/api/franchise/${testFranchiseId}/store`)
+    .set('Authorization', `Bearer ${testAdminUserAuthToken}`)
+    .send(testStore);
+    testStoreId = createStoreRes.body.id;
+    expect(createStoreRes.status).toBe(200);
+    
     let testOrder = {franchiseId: testFranchiseId, storeId: testStoreId, items:[{ menuId: 1, description: "Veggie", price: 0.05 }]};
+    console.log(testFranchiseId);
+    console.log(testStoreId);
     const testAddOrderRes = await request(app)
     .post('/api/order')
     .set('Authorization', `Bearer ${testAdminUserAuthToken}`)
@@ -150,23 +160,6 @@ test('get user order', async () => {
     .set('Authorization', `Bearer ${testAdminUserAuthToken}`);
     expect(testGetOrderRes.status).toBe(200);
     expect(testGetOrderRes.body).toHaveProperty('dinerId');
-});
-
-// test get menu functionality
-test('get menu', async () => {
-  const loginRes = await request(app).put('/api/auth').send(testUser);
-  expect(loginRes.status).toBe(200);
-  expectValidJwt(loginRes.body.token);
-
-  const expectedUser = { ...testUser, roles: [{ role: 'diner' }] };
-  delete expectedUser.password;
-  expect(loginRes.body.user).toMatchObject(expectedUser);
-
-  const getMenuRes = await request(app).get('/api/order/menu/');
-  expect(getMenuRes.status).toBe(200);
-  expect(getMenuRes.body[0]).toHaveProperty('image');
-  expect(getMenuRes.body[0].image).toBe('pizza1.png');
-  
 });
 
 // test delete store functionality
