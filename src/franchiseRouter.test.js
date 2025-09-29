@@ -140,36 +140,29 @@ test('get user franchises', async () => {
     expect(getUserFranchisesRes.body[0]).toHaveProperty('name');
 });
 
+// test functionality of adding an item to the menu
 test('add item to menu', async () => {
     let testMenuItem = { title:"Student", description: "No topping, no sauce, just carbs", image:"pizza9.png", price: 0.0001 };
     const testAddMenuItemRes = await request(app)
     .put('/api/order/menu')
     .set('Authorization', `Bearer ${testAdminUserAuthToken}`)
     .send(testMenuItem);
-    console.log(testAddMenuItemRes.body);
-    console.log(testAddMenuItemRes.body)
     expect(testAddMenuItemRes.status).toBe(200);
     expect(testAddMenuItemRes.body).toBeInstanceOf(Array);
 });
 
 // test order creation functionality
 test('create order', async () => {
-    console.log(testFranchiseId);
-    console.log(testStoreId);
     const getMenuRes = await request(app).get('/api/order/menu/');
-    console.log(getMenuRes.body);
     expect(getMenuRes.status).toBe(200);
-    console.log(getMenuRes.body[0]);
     let testMenuId = getMenuRes.body[0].id;
     let testMenuName = getMenuRes.body[0].title;
     let testMenuPrice = getMenuRes.body[0].price;
-    // let testOrder = {franchiseId: 1, storeId: 1, items:[{ menuId: 1, description: "Veggie", price: 0.0038 }]};
     let testOrder = {franchiseId: testFranchiseId, storeId: testStoreId, items:[{ menuId: testMenuId, description: testMenuName, price: testMenuPrice }]};
     const testAddOrderRes = await request(app)
     .post('/api/order')
     .set('Authorization', `Bearer ${testAdminUserAuthToken}`)
     .send(testOrder);
-    console.log(testAddOrderRes.body);
     expect(testAddOrderRes.status).toBe(200);
 });
 

@@ -72,7 +72,6 @@ test('get menu', async () => {
   expect(loginRes.body.user).toMatchObject(expectedUser);
 
   const getMenuRes = await request(app).get('/api/order/menu/');
-  console.log(getMenuRes.body);
   expect(getMenuRes.status).toBe(200);
   expect(getMenuRes.body).toBeInstanceOf(Array);
   // expect(getMenuRes.body[0]).toHaveProperty('image');
