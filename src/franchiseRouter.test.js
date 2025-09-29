@@ -36,6 +36,7 @@ beforeAll(async () => {
 
   testUser.email = Math.random().toString(36).substring(2, 12) + '@test.com';
   const registerRes = await request(app).post('/api/auth').send(testUser);
+  expect(registerRes.status).toBe(200);
   const loginRes = await request(app).put('/api/auth').send(testUser);
 
   testUserAuthToken = loginRes.body.token;
@@ -53,7 +54,7 @@ beforeAll(async () => {
   let testFranchise = { name: randomName(), admins: [{ email: adminUser.email }]};
 
   //create franchise in db associated with test user
-  createFranchiseRes = await request(app)
+  const createFranchiseRes = await request(app)
     .post('/api/franchise')
     .set('Authorization', `Bearer ${testAdminUserAuthToken}`)
     .send(testFranchise);
@@ -135,7 +136,7 @@ test('get user franchises', async () => {
 // test order creation functionality
 test('create order', async () => {
     let testOrder = {franchiseId: testFranchiseId, storeId: testStoreId, items:[{ menuId: 1, description: "Veggie", price: 0.05 }]};
-    testAddOrderRes = await request(app)
+    const testAddOrderRes = await request(app)
     .post('/api/order')
     .set('Authorization', `Bearer ${testAdminUserAuthToken}`)
     .send(testOrder);
@@ -145,7 +146,7 @@ test('create order', async () => {
 
 // test functionality for getting a user's order
 test('get user order', async () => {
-    testGetOrderRes = await request(app)
+    const testGetOrderRes = await request(app)
     .get('/api/order')
     .set('Authorization', `Bearer ${testAdminUserAuthToken}`);
     expect(testGetOrderRes.status).toBe(200);
@@ -171,7 +172,7 @@ test('get menu', async () => {
 
 // test delete store functionality
 test('delete store', async () => {
-    deleteStoreRes = await request(app)
+    const deleteStoreRes = await request(app)
     .delete(`/api/franchise/:${testFranchiseId}/store/${testStoreId}`)
     .set('Authorization', `Bearer ${testAdminUserAuthToken}`);
     expect(deleteStoreRes.status).toBe(200);

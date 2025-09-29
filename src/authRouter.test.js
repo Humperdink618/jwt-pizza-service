@@ -17,13 +17,14 @@ beforeAll(async () => {
   testUser.id = registerRes.body.user.id;
   expectValidJwt(testUserAuthToken);
 
-  loginRes = await request(app).put('/api/auth').send(testUser);
+  const loginRes = await request(app).put('/api/auth').send(testUser);
+  expect(loginRes.status).toBe(200);
   console.log("wassup!");
 });
 
 // test login functionality
 test('login', async () => {
-  loginRes = await request(app).put('/api/auth').send(testUser);
+  const loginRes = await request(app).put('/api/auth').send(testUser);
   expect(loginRes.status).toBe(200);
   expectValidJwt(loginRes.body.token);
 
