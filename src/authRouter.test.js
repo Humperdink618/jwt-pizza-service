@@ -73,6 +73,7 @@ test('get menu', async () => {
 
   const getMenuRes = await request(app).get('/api/order/menu/');
   expect(getMenuRes.status).toBe(200);
+  expect(getMenuRes.body).toBeInstanceOf(Array);
   // expect(getMenuRes.body[0]).toHaveProperty('image');
   // expect(getMenuRes.body[0].image).toBe('pizza1.png');
 
