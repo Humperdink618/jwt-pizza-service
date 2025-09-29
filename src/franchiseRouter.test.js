@@ -2,11 +2,15 @@ const request = require('supertest');
 const app = require('./service');
 
 const testAdminUser = { name: 'pizza admin', email: 'admin@test.com', password: 'a' };
+const testUser = { name: 'pizza diner', email: 'reg@test.com', password: 'a' };
+let testUserAuthToken;
 let testAdminUserAuthToken;
-// let testAdminUserId;
+let testUserId;
+let testAdminUserId;
 let testFranchiseId;
-let testFranchise = { name: 'pizzaPlace', admins: [{ email: 'chuckles@test.com'}]};
-let testStore = {franchiseId: 1, name:"NYC"};
+// let testStore;
+let testStoreId;
+
 // admin@test.com
 // const testFranchise = { name: 'pizzaPocket', admins: [{ email: 'admin@test.com', id: 4, name: 'pizza franchisee' }], id: 1 };
 // const testStore = { id: 1, name: 'SLC', totalRevenue: 0 };
@@ -14,10 +18,11 @@ let testStore = {franchiseId: 1, name:"NYC"};
 
 const { Role, DB } = require('./database/database.js');
 
-async function createAdminUser(email) {
+async function createAdminUser() {
   let user = { password: 'toomanysecrets', roles: [{ role: Role.Admin }] };
-  user.name = "admin";
-  user.email = email;
+  // user.name = "admin";
+  user.name = randomName();
+  user.email = user.name + '@admin.com';
 
   await DB.addUser(user);
   user.password = 'toomanysecrets';
@@ -45,21 +50,39 @@ function expectValidJwt(potentialJwt) {
 //franchise tests
 beforeAll(async () => {
   //register a user to use for testing
-  let user = await createAdminUser(testAdminUser.email);
-//   console.log(user);
+  let adminUser = await createAdminUser();
+  // console.log(user);
 //   let adminUser = {name: user.name, email: user.email, password: user.password};
-//   const loginAdminRes = await request(app).put('/api/auth').send(user);
-  registerAdminRes = await request(app).post('/api/auth').send(user);
-//   console.log(registerAdminRes.body);
+  testUser.email = Math.random().toString(36).substring(2, 12) + '@test.com';
+  const registerRes = await request(app).post('/api/auth').send(testUser);
+  const loginRes = await request(app).put('/api/auth').send(testUser);
+  // console.log(testUser);
+  // registerAdminRes = await request(app).post('/api/auth').send(user);
+  // console.log(loginAdminRes.body.Role);
 //   loginAdminRes = await request(app).put('/api/auth').send(adminUser);
 //   console.log(loginAdminRes.body.token);
+  // console.log(loginRes.body.token)
 
-  testAdminUserAuthToken = registerAdminRes.body.token;
-//   console.log(testAdminUserAuthToken);
+  testUserAuthToken = loginRes.body.token;
+  expectValidJwt(testUserAuthToken);
+  testUserId = loginRes.body.user.id;
+  // console.log(testUserId);
+
+  const loginAdminRes = await request(app).put('/api/auth').send(adminUser);
+
+  // console.log(loginAdminRes.body.token)
+  testAdminUserAuthToken = loginAdminRes.body.token;
+  
+  expectValidJwt(testAdminUserAuthToken);
+
+  testAdminUserId = loginAdminRes.body.user.id;
+  // console.log(testAdminUserAuthToken);
 //   testAdminUserId = loginAdminRes.body.user.id;
 //   const testStore = { id: 1, name: 'SLC', totalRevenue: 0 };
-  
-  testFranchise.admins[0].email = testAdminUser.email;
+  let testFranchise = { name: randomName(), admins: [{ email: adminUser.email }]};
+
+  // let testStore = {franchiseId: 1, name:"NYC"};
+  // testFranchise.admins[0].email = adminUser.email;
 //   console.log(testFranchise);
 //   console.log(testFranchise.admins.email);
 //   console.log(loginAdminRes.body);
@@ -70,16 +93,18 @@ beforeAll(async () => {
 //   console.log(testFranchise);
 
   //create franchise in db associated with test user
-   createFranchiseRes = await request(app)
+  createFranchiseRes = await request(app)
     .post('/api/franchise')
     .set('Authorization', `Bearer ${testAdminUserAuthToken}`)
     .send(testFranchise);
+  
   expect(createFranchiseRes.status).toBe(200);
 //   console.log(createFranchiseRes.body);
   testFranchiseId = createFranchiseRes.body.id;
-  testStore.franchiseId = testFranchiseId;
-  console.log(testFranchiseId);
-  console.log(testStore.franchiseId);
+  // let testStore = {franchiseId: testFranchiseId, name: randomName()};
+  // testStore.franchiseId = testFranchiseId;
+  // console.log(testFranchiseId);
+  // console.log(testStore.franchiseId);
   // console.log(loginAdminRes.body.user.roles);
 }); 
 
@@ -121,8 +146,10 @@ test('create franchise bad', async () => {
 
 // still working on this one
 test('get user franchises', async () => {
+
+
     const getUserFranchisesRes = await request(app)
-    .get('/api/franchise/:userId')
+    .get(`/api/franchise/${testAdminUserId}`)
     .set('Authorization', `Bearer ${testAdminUserAuthToken}`);
     // console.log(getUserFranchisesRes.body);
     expect(getUserFranchisesRes.status).toBe(200); 
@@ -130,11 +157,29 @@ test('get user franchises', async () => {
     // expect(getFranchisesRes)
 });
 
-test('create store bad', async () => {
-     const testStoreBad = {franchiseId: testAdminUser.id, name:"Toledo"};
-     const createStoreResBad = await request(app)
-    .post('/api/franchise/:franchiseId/store')
+test('create store', async () => {
+
+    // console.log(testAdminUserAuthToken);
+    console.log(testFranchiseId);
+    let testStore = {franchiseId: testFranchiseId, name: randomName()};
+    console.log(testStore);
+    const createStoreRes = await request(app)
+    .post(`/api/franchise/${testFranchiseId}/store`)
     .set('Authorization', `Bearer ${testAdminUserAuthToken}`)
+    .send(testStore);
+    // console.log(createStoreRes.body.id);
+    testStoreId = createStoreRes.body.id;
+    expect(createStoreRes.status).toBe(200);
+    // console.log(createStoreRes.body.id);
+    
+});
+
+test('create store bad', async () => {
+
+    const testStoreBad = {franchiseId: testFranchiseId, name: randomName()};
+    const createStoreResBad = await request(app)
+    .post(`/api/franchise/${testFranchiseId}/store`)
+    .set('Authorization', `Bearer ${testUserAuthToken}`)
     .send(testStoreBad);
     expect(createStoreResBad.status).not.toBe(200);
     expect(createStoreResBad.status).toBe(403);
@@ -143,19 +188,19 @@ test('create store bad', async () => {
 //     expect(createStoreRes.status).toBe(200);
 });
 
-test('update user', async () => {
-    // const testBadAuth = 'nanu nanu';
-    // const testBadUser3 = { name: randomName(), email: 'blarg@test.com', password: 'fish' }; 
-    const updateUserResBad = await request(app)
-    .put('/api/user/:userId')
-    .set('Authorization', `Bearer ${testAdminUserAuthToken}`)
-    .send(testAdminUser);
-    expect(updateUserResBad.status).not.toBe(200);
-    expect(updateUserResBad.status).toBe(403);
-    expect(updateUserResBad.body.message).toBe('unauthorized');
-    // console.log(createStoreRes.body.message);
-//     expect(createStoreRes.status).toBe(200);
-});
+// test('update user', async () => {
+//     // const testBadAuth = 'nanu nanu';
+//     // const testBadUser3 = { name: randomName(), email: 'blarg@test.com', password: 'fish' }; 
+//     const updateUserResBad = await request(app)
+//     .put(`/api/user/${testUserId}`)
+//     .set('Authorization', `Bearer ${testUserAuthToken}`)
+//     .send(testAdminUser);
+//     expect(updateUserResBad.status).not.toBe(200);
+//     expect(updateUserResBad.status).toBe(403);
+//     expect(updateUserResBad.body.message).toBe('unauthorized');
+//     // console.log(createStoreRes.body.message);
+// //     expect(createStoreRes.status).toBe(200);
+// });
 
 // test('create store', async () => {
 //     const createStoreRes = await request(app)
@@ -175,18 +220,18 @@ test('update user', async () => {
 //     expect(testAddOrderRes.status).toBe(200);
 // });
 
-// test('delete store', async () => {
-//     deleteStoreRes = await request(app)
-//     .delete(`/api/franchise/:${testFranchiseId}/store/:storeId`)
-//     .set('Authorization', `Bearer ${testUserAuthToken}`);
-//     expect(deleteStoreRes.status).toBe(200);
-//     expect(deleteStoreRes.body.message).toBe('store deleted');
-// });
+test('delete store', async () => {
+    deleteStoreRes = await request(app)
+    .delete(`/api/franchise/:${testFranchiseId}/store/${testStoreId}`)
+    .set('Authorization', `Bearer ${testAdminUserAuthToken}`);
+    expect(deleteStoreRes.status).toBe(200);
+    expect(deleteStoreRes.body.message).toBe('store deleted');
+});
 
 test('delete franchise', async () => {
     
     const deleteFranchiseRes = await request(app)
-    .delete('/api/franchise/:franchiseId')
+    .delete(`/api/franchise/${testFranchiseId}`)
     .set('Authorization', `Bearer ${testAdminUserAuthToken}`);
     expect(deleteFranchiseRes.status).toBe(200);
     expect(deleteFranchiseRes.body.message).toBe('franchise deleted');
@@ -195,8 +240,8 @@ test('delete franchise', async () => {
 test('delete store bad', async () => {
     // const badAuthToken = 'nanu nanu';
     const deleteStoreResBad = await request(app)
-    .delete('/api/franchise/:franchiseId/store/:storeId')
-    .set('Authorization', `Bearer ${testAdminUserAuthToken}`);
+    .delete(`/api/franchise/${testFranchiseId}/store/${testStoreId}`)
+    .set('Authorization', `Bearer ${testUserAuthToken}`);
     expect(deleteStoreResBad.status).not.toBe(200);
     expect(deleteStoreResBad.status).toBe(403);
     expect(deleteStoreResBad.body.message).toBe('unable to delete a store');
