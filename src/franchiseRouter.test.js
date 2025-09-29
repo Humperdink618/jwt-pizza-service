@@ -141,10 +141,15 @@ test('create order', async () => {
     .send(testStore);
     testStoreId = createStoreRes.body.id;
     expect(createStoreRes.status).toBe(200);
+
+    const getMenuRes = await request(app).get('/api/order/menu/');
+    // console.log(getMenuRes.body);
+    expect(getMenuRes.status).toBe(200);
+
+    // console.log(getMenuRes.body[0].id);
+    let testMenuId = getMenuRes.body[0].id;
     
-    let testOrder = {franchiseId: testFranchiseId, storeId: testStoreId, items:[{ menuId: 1, description: "Veggie", price: 0.05 }]};
-    console.log(testFranchiseId);
-    console.log(testStoreId);
+    let testOrder = {franchiseId: testFranchiseId, storeId: testStoreId, items:[{ menuId: testMenuId, description: "Veggie", price: 0.05 }]};
     const testAddOrderRes = await request(app)
     .post('/api/order')
     .set('Authorization', `Bearer ${testAdminUserAuthToken}`)
