@@ -147,6 +147,7 @@ test('create order', async () => {
     expect(getMenuRes.status).toBe(200);
 
     // console.log(getMenuRes.body[0].id);
+    expect(getMenuRes.body).toBeInstanceOf(Array);
     let testMenuId = getMenuRes.body[0].id;
     
     let testOrder = {franchiseId: testFranchiseId, storeId: testStoreId, items:[{ menuId: testMenuId, description: "Veggie", price: 0.05 }]};
