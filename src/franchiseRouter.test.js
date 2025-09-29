@@ -150,7 +150,7 @@ test('create order', async () => {
     // expect(getMenuRes.body).toBeInstanceOf(Array);
     // let testMenuId = getMenuRes.body[0].id;
     
-    let testOrder = {franchiseId: 1, storeId: 1, items:[{ menuId: 1, description: "Veggie", price: 0.05 }]};
+    let testOrder = {franchiseId: 1, storeId: 1, items:[{ menuId: 1, description: "Veggie", price: 0.0038 }]};
     const testAddOrderRes = await request(app)
     .post('/api/order')
     .set('Authorization', `Bearer ${testAdminUserAuthToken}`)
