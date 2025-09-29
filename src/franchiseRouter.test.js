@@ -74,13 +74,13 @@ beforeAll(async () => {
     .post('/api/franchise')
     .set('Authorization', `Bearer ${testAdminUserAuthToken}`)
     .send(testFranchise);
-//   expect(createFranchiseRes.status).toBe(200);
+  expect(createFranchiseRes.status).toBe(200);
 //   console.log(createFranchiseRes.body);
   testFranchiseId = createFranchiseRes.body.id;
   testStore.franchiseId = testFranchiseId;
-//   console.log(testFranchiseId);
-//   console.log(testStore.franchiseId);
-//   console.log(loginAdminRes.body.user.roles);
+  console.log(testFranchiseId);
+  console.log(testStore.franchiseId);
+  // console.log(loginAdminRes.body.user.roles);
 }); 
 
 test('get authenticated user', async () => {
