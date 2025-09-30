@@ -11,22 +11,23 @@ JWTs are used for authentication objects.
 In order for the server to work correctly it must be configured by providing a `config.js` file.
 
 ```js
-export default {
-  jwtSecret: 'your-cryptographically-generated-secret-here',
-  db: {
-    connection: {
-      host: 'localhost',
+module.exports =  {
+    // Your JWT secret can be any random string you would like. It just needs to be secret.
+   jwtSecret: 'yourjwtsecrethere',
+   db: {
+   connection: {
+      host: '127.0.0.1',
       user: 'root',
-      password: 'your-secure-database-password-here',
+      password: 'yourpasswordhere',
       database: 'pizza',
       connectTimeout: 60000,
-    },
-    listPerPage: 10,
-  },
-  factory: {
-    url: 'https://pizza-factory.cs329.click',
-    apiKey: 'your-factory-issued-api-key-here',
-  },
+   },
+   listPerPage: 10,
+   },
+   factory: {
+   url: 'https://pizza-factory.cs329.click',
+   apiKey: 'yourapikeyhere',
+   },
 };
 ```
 
