@@ -204,6 +204,12 @@ test('delete store bad', async () => {
     expect(deleteStoreResBad.body.message).toBe('unable to delete a store');
 });
 
+afterAll(async () => {
+    await request(app)
+        .delete(`/api/auth/`)
+        .set('Authorization', `Bearer ${testUserAuthToken}`);
+});
+
 // note: I am aware that I combined both franchiseRouter and orderRouter
 // functionality here. However, given the fact that both are very intertwined
 // and require similar fields (storeId, franchiseId, admin authtoken, etc.),

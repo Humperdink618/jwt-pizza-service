@@ -79,6 +79,12 @@ test('get menu', async () => {
 
 });
 
+afterAll(async () => {
+    await request(app)
+        .delete(`/api/auth/`)
+        .set('Authorization', `Bearer ${testUserAuthToken}`);
+});
+
 // notes:
 
 // unauthorized 401 should result if a normal user does something that only
