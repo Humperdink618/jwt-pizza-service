@@ -5,6 +5,8 @@ const testUser = { name: 'pizza diner', email: 'reg@test.com', password: 'a' };
 let testUserAuthToken;
 let testAdminUserAuthToken;
 let testAdminUserId;
+let testUserId;
+let testUserRegId;
 let testFranchiseId;
 let testStoreId;
 
@@ -38,10 +40,13 @@ beforeAll(async () => {
   testUser.email = Math.random().toString(36).substring(2, 12) + '@test.com';
   const registerRes = await request(app).post('/api/auth').send(testUser);
   expect(registerRes.status).toBe(200);
+  testUserRegId = registerRes.body.user.id;
   const loginRes = await request(app).put('/api/auth').send(testUser);
 
   testUserAuthToken = loginRes.body.token;
   expectValidJwt(testUserAuthToken);
+
+  testUserId = loginRes.body.user.id;
 
   const loginAdminRes = await request(app).put('/api/auth').send(adminUser);
 
@@ -104,6 +109,11 @@ test('create franchise bad', async () => {
     expect(createFranchiseResBad.status).not.toBe(200);
     expect(createFranchiseResBad.status).toBe(403);
     expect(createFranchiseResBad.body.message).toBe('unable to create a franchise');
+    await request(app)
+        .delete(`/api/auth/`)
+        .set('Authorization', `Bearer ${testBadUserAuthToken}`);
+    await DB.deleteUserRole(testBadUser2.id);
+    await DB.deleteUser(testBadUser2.id);
 });
 
 // test create store functionality
@@ -149,6 +159,7 @@ test('add item to menu', async () => {
     .send(testMenuItem);
     expect(testAddMenuItemRes.status).toBe(200);
     expect(testAddMenuItemRes.body).toBeInstanceOf(Array);
+    await DB.deleteMenuItem(testAddMenuItemRes.body.at(-1));
 });
 
 // test order creation functionality
@@ -208,6 +219,16 @@ afterAll(async () => {
     await request(app)
         .delete(`/api/auth/`)
         .set('Authorization', `Bearer ${testUserAuthToken}`);
+    await request(app)
+        .delete(`/api/auth/`)
+        .set('Authorization', `Bearer ${testAdminUserAuthToken}`);
+    await DB.deleteUserRole(testUserId);
+    await DB.deleteUserRole(testAdminUserId);
+    await DB.deleteUser(testUserId);
+    await DB.deleteUser(testAdminUserId);
+    await DB.deleteUserRole(testUserRegId);
+    await DB.deleteUser(testUserRegId);
+    
 });
 
 // note: I am aware that I combined both franchiseRouter and orderRouter

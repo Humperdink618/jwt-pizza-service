@@ -3,7 +3,10 @@ const app = require('./service');
 
 const testUser = { name: 'pizza diner', email: 'reg@test.com', password: 'a' };
 let testUserAuthToken;
+let testUserId;
+let testUserRegId;
 
+const { DB } = require('./database/database.js');
 // may need to find a way to refresh and restart the database and then mock it out.
 
 function randomName() {
@@ -15,6 +18,7 @@ beforeAll(async () => {
   const registerRes = await request(app).post('/api/auth').send(testUser);
   testUserAuthToken = registerRes.body.token;
   testUser.id = registerRes.body.user.id;
+  testUserRegId = registerRes.body.user.id;
   expectValidJwt(testUserAuthToken);
 
   const loginRes = await request(app).put('/api/auth').send(testUser);
@@ -27,7 +31,7 @@ test('login', async () => {
   const loginRes = await request(app).put('/api/auth').send(testUser);
   expect(loginRes.status).toBe(200);
   expectValidJwt(loginRes.body.token);
-
+  testUserId = loginRes.body.user.id;
   const expectedUser = { ...testUser, roles: [{ role: 'diner' }] };
   delete expectedUser.password;
   expect(loginRes.body.user).toMatchObject(expectedUser);
@@ -83,6 +87,10 @@ afterAll(async () => {
     await request(app)
         .delete(`/api/auth/`)
         .set('Authorization', `Bearer ${testUserAuthToken}`);
+    await DB.deleteUserRole(testUserId);
+    await DB.deleteUser(testUserId);
+    await DB.deleteUserRole(testUserRegId);
+    await DB.deleteUser(testUserRegId);
 });
 
 // notes:

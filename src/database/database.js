@@ -29,6 +29,19 @@ class DB {
     }
   }
 
+  async deleteMenuItem(item) {
+    const connection = await this.getConnection();
+    try {
+      await this.query(connection, `DELETE FROM menu WHERE id=?`, [item.id]);
+      await connection.commit();
+    } catch {
+      await connection.rollback();
+      throw new StatusCodeError('unable to delete menu item', 500);
+    } finally {
+      connection.end();
+    }
+  }
+
   async addUser(user) {
     const connection = await this.getConnection();
     try {
@@ -125,6 +138,32 @@ class DB {
     const connection = await this.getConnection();
     try {
       await this.query(connection, `DELETE FROM auth WHERE token=?`, [token]);
+    } finally {
+      connection.end();
+    }
+  }
+
+  async deleteUserRole(userId) {
+    const connection = await this.getConnection();
+    try {
+      await this.query(connection, `DELETE FROM userRole WHERE userId=?`, [userId]);
+      await connection.commit();
+    } catch {
+      await connection.rollback();
+      throw new StatusCodeError('unable to delete user role', 500);
+    } finally {
+      connection.end();
+    }
+  }
+
+  async deleteUser(userId) {
+    const connection = await this.getConnection();
+    try {
+      await this.query(connection, `DELETE FROM user WHERE id=?`, [userId]);
+      await connection.commit();
+    } catch {
+      await connection.rollback();
+      throw new StatusCodeError('unable to delete user', 500);
     } finally {
       connection.end();
     }
