@@ -88,11 +88,14 @@ test('get menu', async () => {
 //   expect(listUsersRes.status).toBe(200);
 // });
 
+// tests unauthorized list users functionality
 test('list users unauthorized', async () => {
   const listUsersRes = await request(app).get('/api/user');
   expect(listUsersRes.status).toBe(401);
 });
 
+
+// test list users functionality
 test('list users', async () => {
   const [user, userToken] = await registerUser(request(app));
   const listUsersRes = await request(app)
@@ -100,8 +103,14 @@ test('list users', async () => {
     .set('Authorization', 'Bearer ' + userToken);
   expect(listUsersRes.status).toBe(200);
   expect(listUsersRes.body).toHaveProperty('users');
+  await request(app)
+        .delete(`/api/auth/`)
+        .set('Authorization', `Bearer ${userToken}`);
+  await DB.deleteUserRole(user.id);
+  await DB.deleteUser(user.id);
 });
 
+// general registerUser function for handling list users
 async function registerUser(service) {
   const testUser = {
     name: 'pizza diner',
@@ -110,10 +119,13 @@ async function registerUser(service) {
   };
   const registerRes = await service.post('/api/auth').send(testUser);
   registerRes.body.user.password = testUser.password;
-
-  return [registerRes.body.user, registerRes.body.token];
+  const testRegUser1 = registerRes.body.user;
+  const testRegUser1AuthToken = registerRes.body.token;
+  // return [registerRes.body.user, registerRes.body.token];
+  return [testRegUser1, testRegUser1AuthToken];
 }
 
+// cleanup
 afterAll(async () => {
     await request(app)
         .delete(`/api/auth/`)

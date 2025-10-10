@@ -215,6 +215,43 @@ test('delete store bad', async () => {
     expect(deleteStoreResBad.body.message).toBe('unable to delete a store');
 });
 
+// test delete user functionality
+test('delete user', async () => {
+    const testNewUser3 = { name: randomName(), email: 'cow@test.com', password: 'moo' }; 
+    const register2Res = await request(app).post('/api/auth').send(testNewUser3);
+    let testUser2AuthToken = register2Res.body.token;
+    testNewUser3.id = register2Res.body.user.id;
+    expectValidJwt(testUser2AuthToken);
+
+    const deleteUserRes = await request(app)
+    .delete(`/api/user/${testNewUser3.id}`)
+    .set('Authorization', `Bearer ${testAdminUserAuthToken}`);
+    expect(deleteUserRes.status).toBe(200);
+    expect(deleteUserRes.body.message).toBe('user deleted');
+});
+
+// test error handling for unauthorized user deletion
+test('delete user Bad', async () => {
+    const testBadUser3 = { name: randomName(), email: 'cow2@test.com', password: 'moo2' }; 
+    const registerBad2Res = await request(app).post('/api/auth').send(testBadUser3);
+    let testBadUser2AuthToken = registerBad2Res.body.token;
+    testBadUser3.id = registerBad2Res.body.user.id;
+    expectValidJwt(testBadUser2AuthToken);
+
+    const deleteUserRes = await request(app)
+    .delete(`/api/user/${testBadUser3.id}`)
+    .set('Authorization', `Bearer ${testUserAuthToken}`);
+    expect(deleteUserRes.status).not.toBe(200);
+    expect(deleteUserRes.status).toBe(403);
+    expect(deleteUserRes.body.message).toBe('unauthorized');
+    await request(app)
+        .delete(`/api/auth/`)
+        .set('Authorization', `Bearer ${testBadUser2AuthToken}`);
+    await DB.deleteUserRole(testBadUser3.id);
+    await DB.deleteUser(testBadUser3.id);
+});
+
+// cleanup
 afterAll(async () => {
     await request(app)
         .delete(`/api/auth/`)
@@ -236,3 +273,5 @@ afterAll(async () => {
 // and require similar fields (storeId, franchiseId, admin authtoken, etc.),
 // I felt like it was simpler to combine the two into one test file.
 // May separate it out later on, for the sake of single responsibility principle. 
+// Likewise, included delete user functionality here too. This is an authRouter
+// function, but because it requires admin priviledges, I included it here instead.
