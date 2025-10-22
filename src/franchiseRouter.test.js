@@ -177,7 +177,6 @@ test('create order', async () => {
     expect(testAddOrderRes.status).toBe(200);
 });
 
-
 // test functionality for getting a user's order
 test('get user order', async () => {
     const testGetOrderRes = await request(app)
