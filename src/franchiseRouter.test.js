@@ -128,6 +128,7 @@ test('create store', async () => {
     expect(createStoreRes.body).toHaveProperty('name');
 });
 
+
 // test improper store creation error handling
 test('create store bad', async () => {
     const testStoreBad = {franchiseId: testFranchiseId, name: randomName()};
