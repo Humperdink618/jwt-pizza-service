@@ -100,10 +100,12 @@ function sendMetricToGrafana(metrics) {
     ],
   };
 
-  fetch(`${config.url}`, {
+  // console.log(`${config.url}`);
+
+  fetch(`${config.metrics.url}`, {
     method: 'POST',
     body: JSON.stringify(body),
-    headers: { Authorization: `Bearer ${config.apiKey}`, 'Content-Type': 'application/json' },
+    headers: { Authorization: `Bearer ${config.metrics.apiKey}`, 'Content-Type': 'application/json' },
   })
     .then((response) => {
       if (!response.ok) {
