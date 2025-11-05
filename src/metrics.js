@@ -35,6 +35,8 @@ setInterval(() => {
   Object.keys(requests).forEach((endpoint) => {
     metrics.push(createMetric('requests', requests[endpoint], '1', 'sum', 'asInt', { endpoint }));
     metrics.push(createMetric('greetingChange', greetingChangedCount, '1', 'sum', 'asInt', {}));
+    metrics.push(createMetric('pizzaPurchaseSuccess', successfulPizzaPurchaseCount, '1', 'sum', 'asInt', {}));
+    metrics.push(createMetric('pizzaPurchaseFailure', pizzaPurchaseFailureCount, '1', 'sum', 'asInt', {}));
   });
 
   sendMetricToGrafana(metrics);
