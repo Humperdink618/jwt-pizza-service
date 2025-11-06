@@ -67,16 +67,16 @@ function requestTracker(req, res, next) {
 // This will periodically send metrics to Grafana
 setInterval(() => {
   const metrics = [];
-  let cpuUsage = getCpuUsagePercentage();
-  let memoryUsage = getMemoryUsagePercentage();
+  let cpuUsageNum = getCpuUsagePercentage();
+  let memoryUsageNum = parseInt(getMemoryUsagePercentage());
   Object.keys(requests).forEach((endpoint) => {
     metrics.push(createMetric('requests', requests[endpoint], '1', 'sum', 'asInt', { endpoint }));
     metrics.push(createMetric('greetingChange', greetingChangedCount, '1', 'sum', 'asInt', {}));
     metrics.push(createMetric('pizzaPurchaseSuccess', successfulPizzaPurchaseCount, '1', 'sum', 'asInt', {}));
     metrics.push(createMetric('pizzaPurchaseFailure', pizzaPurchaseFailureCount, '1', 'sum', 'asInt', {}));
     metrics.push(createMetric('pizzaPurchaseLatency', pizzaPurchaseLatencyTimer, 'ms', 'gauge', 'asDouble', {}));
-    metrics.push(createMetric('cpuUsagePercentage', cpuUsage, '%', 'gauge', 'asInt', {}));
-    metrics.push(createMetric('memoryUsagePercentage', memoryUsage, '%', 'gauge', 'asInt', {}));
+    metrics.push(createMetric('cpuUsagePercentage', cpuUsageNum, '%', 'gauge', 'asInt', {}));
+    metrics.push(createMetric('memoryUsagePercentage', memoryUsageNum, '%', 'gauge', 'asInt', {}));
     metrics.push(createMetric('serviceLatency', serviceLatencyTimer, 'ms', 'gauge', 'asDouble', {}));
   });
 
@@ -90,6 +90,7 @@ function getCpuUsagePercentage() {
   return cpuUsage.toFixed(2) * 100;
 }
 
+// this returns a string. May need assistance for conversion
 function getMemoryUsagePercentage() {
   const totalMemory = os.totalmem();
   const freeMemory = os.freemem();
@@ -99,7 +100,7 @@ function getMemoryUsagePercentage() {
 }
 
 function createMetric(metricName, metricValue, metricUnit, metricType, valueType, attributes) {
-  attributes = { ...attributes, source: config.source };
+  attributes = { ...attributes, source: config.metrics.source };
 
   const metric = {
     name: metricName,
