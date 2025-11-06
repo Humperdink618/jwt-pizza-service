@@ -85,6 +85,9 @@ orderRouter.post(
       headers: { 'Content-Type': 'application/json', authorization: `Bearer ${config.factory.apiKey}` },
       body: JSON.stringify({ diner: { id: req.user.id, name: req.user.name, email: req.user.email }, order }),
     });
+    const startTime = performance.now();
+    let total = 0;
+    // iterate over all pizzas in order to get total
     const j = await r.json();
     if (r.ok) {
       metrics.pizzaPurchaseSuccess();
@@ -93,6 +96,8 @@ orderRouter.post(
       metrics.pizzaPurchaseFailure();
       res.status(500).send({ message: 'Failed to fulfill order at factory', followLinkToEndChaos: j.reportUrl });
     }
+    const endTime = performance.now();
+    metrics.pizzaLatency(startTime, endTime);
   })
 );
 

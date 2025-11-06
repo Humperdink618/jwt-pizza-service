@@ -4,8 +4,9 @@ const config = require('./config');
 const requests = {};
 let greetingChangedCount = 0;
 let successfulPizzaPurchaseCount = 0;
-// let pizzaPurchaseLatencyTimer = 0;
+let pizzaPurchaseLatencyTimer = 0;
 let pizzaPurchaseFailureCount = 0;
+let serviceLatencyTimer = 0;
 
 // Function to track when the greeting is changed
 function greetingChanged() {
@@ -22,21 +23,61 @@ function pizzaPurchaseFailure() {
   pizzaPurchaseFailureCount++;
 }
 
+function pizzaLatency(startTime, endTime) {
+  pizzaPurchaseLatencyTimer = endTime - startTime;
+}
+
+function serviceLatency(startTime, endTime) {
+  serviceLatencyTimer = endTime - startTime;
+}
+
 // Middleware to track requests
 function requestTracker(req, res, next) {
+  // const startTime = performance.now();
+  // mark the start of the request processing
+  // performance.mark('requestStart');
+  const startTime = performance.now();
   const endpoint = `[${req.method}] ${req.path}`;
   requests[endpoint] = (requests[endpoint] || 0) + 1;
+  res.on("finish", () => {
+    // look up syntax for how to do this
+    // mark the end of the response processing
+    // performance.mark('requestEnd');
+    const endTime = performance.now();
+
+    // measure the duration between the start and end marks
+    // performance.measure('requestLatency', 'requestStart', 'requestEnd');
+    serviceLatency(startTime, endTime);
+
+    // get the measurement entry
+    // const latencyMeasurement = performance.getEntriesByName('requestLatency')[0];
+
+    // store the latency
+    // serviceLatencyTimer = latencyMeasurement.duration;
+
+    // clear the marks and measures to prevent memory leaks in long-running applications
+    // performance.clearMarks('requestStart');
+    // performance.clearMarks('requestEnd');
+    // performance.clearMeasures('requestLatency');
+
+  });
   next();
 }
 
 // This will periodically send metrics to Grafana
 setInterval(() => {
   const metrics = [];
+  let cpuUsage = getCpuUsagePercentage();
+  let memoryUsage = getMemoryUsagePercentage();
   Object.keys(requests).forEach((endpoint) => {
     metrics.push(createMetric('requests', requests[endpoint], '1', 'sum', 'asInt', { endpoint }));
     metrics.push(createMetric('greetingChange', greetingChangedCount, '1', 'sum', 'asInt', {}));
     metrics.push(createMetric('pizzaPurchaseSuccess', successfulPizzaPurchaseCount, '1', 'sum', 'asInt', {}));
     metrics.push(createMetric('pizzaPurchaseFailure', pizzaPurchaseFailureCount, '1', 'sum', 'asInt', {}));
+    metrics.push(createMetric('pizzaPurchaseLatency', pizzaPurchaseLatencyTimer, 'ms', 'gauge', 'asDouble', {}));
+    metrics.push(createMetric('cpuUsagePercentage', cpuUsage, '%', 'gauge', 'asInt', {}));
+    metrics.push(createMetric('memoryUsagePercentage', memoryUsage, '%', 'gauge', 'asInt', {}));
+    metrics.push(createMetric('serviceLatency', serviceLatencyTimer, 'ms', 'gauge', 'asDouble', {}));
   });
 
   sendMetricToGrafana(metrics);
@@ -126,4 +167,6 @@ module.exports = {
   getMemoryUsagePercentage,
   pizzaPurchaseSuccess,
   pizzaPurchaseFailure,
+  pizzaLatency,
+  serviceLatency,
  };
