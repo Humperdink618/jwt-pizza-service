@@ -119,6 +119,7 @@ setInterval(() => {
   let cpuUsageNum = getCpuUsagePercentage();
   let memoryUsageNum = parseInt(getMemoryUsagePercentage());
   getActiveUsers();
+  // console.log(activeUserCount);
   Object.keys(requests).forEach((endpoint) => {
     metrics.push(createMetric('requests', requests[endpoint], '1', 'sum', 'asInt', { endpoint }));
     metrics.push(createMetric('greetingChange', greetingChangedCount, '1', 'sum', 'asInt', {}));
