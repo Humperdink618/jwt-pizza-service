@@ -7,6 +7,9 @@ let successfulPizzaPurchaseCount = 0;
 let pizzaPurchaseLatencyTimer = 0;
 let pizzaPurchaseFailureCount = 0;
 let serviceLatencyTimer = 0;
+let revenueCount = 0;
+let authSuccessCount = 0;
+let authFailureCount = 0;
 
 // Function to track when the greeting is changed
 function greetingChanged() {
@@ -21,6 +24,21 @@ function pizzaPurchaseSuccess() {
 // Function to track the number of pizzas unsuccessfully purchased
 function pizzaPurchaseFailure() {
   pizzaPurchaseFailureCount++;
+}
+
+// Function to track the total revenue per order
+function pizzaPurchaseRevenue(total) {
+  revenueCount += total;
+}
+
+// Function to track the number of successful authentication attempts
+function authSuccess() {
+  authSuccessCount++;
+}
+
+// Function to track the number of unsuccessful authentication attempts
+function authFailure() {
+  authFailureCount++;
 }
 
 function pizzaLatency(startTime, endTime) {
@@ -78,6 +96,9 @@ setInterval(() => {
     metrics.push(createMetric('cpuUsagePercentage', cpuUsageNum, '%', 'gauge', 'asInt', {}));
     metrics.push(createMetric('memoryUsagePercentage', memoryUsageNum, '%', 'gauge', 'asInt', {}));
     metrics.push(createMetric('serviceLatency', serviceLatencyTimer, 'ms', 'gauge', 'asDouble', {}));
+    metrics.push(createMetric('totalRevenue', revenueCount, '1', 'sum', 'asDouble', {}));
+    metrics.push(createMetric('authSuccess', authSuccessCount, '1', 'sum', 'asInt', {}));
+    metrics.push(createMetric('authFailure', authFailureCount, '1', 'sum', 'asInt', {}));
   });
 
   sendMetricToGrafana(metrics);
@@ -170,4 +191,7 @@ module.exports = {
   pizzaPurchaseFailure,
   pizzaLatency,
   serviceLatency,
+  pizzaPurchaseRevenue,
+  authSuccess,
+  authFailure,
  };

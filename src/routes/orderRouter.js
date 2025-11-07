@@ -86,11 +86,21 @@ orderRouter.post(
       body: JSON.stringify({ diner: { id: req.user.id, name: req.user.name, email: req.user.email }, order }),
     });
     const startTime = performance.now();
-    let total = 0;
-    // iterate over all pizzas in order to get total
+    // let total = 0;
+    // // iterate over all pizzas in order to get total
+    // for (let i = 0; i < order.items.length; i++) {
+    //   total += order.items[i].price;
+    // }
+    
     const j = await r.json();
     if (r.ok) {
       metrics.pizzaPurchaseSuccess();
+      let total = 0;
+      // iterate over all pizzas in order to get total
+      for (let i = 0; i < order.items.length; i++) {
+        total += order.items[i].price;
+      }
+      metrics.pizzaPurchaseRevenue(total);
       res.send({ order, followLinkToEndChaos: j.reportUrl, jwt: j.jwt });
     } else {
       metrics.pizzaPurchaseFailure();
