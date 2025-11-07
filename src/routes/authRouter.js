@@ -81,6 +81,7 @@ authRouter.put(
     const auth = await setAuth(user);
     res.json({ user: user, token: auth });
     metrics.authSuccess();
+    metrics.setActiveUsers(user.id);
   })
 );
 

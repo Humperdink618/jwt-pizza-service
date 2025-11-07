@@ -10,6 +10,8 @@ let serviceLatencyTimer = 0;
 let revenueCount = 0;
 let authSuccessCount = 0;
 let authFailureCount = 0;
+let activeUserCount = 0;
+const activeUsers = new Map();
 
 // Function to track when the greeting is changed
 function greetingChanged() {
@@ -39,6 +41,30 @@ function authSuccess() {
 // Function to track the number of unsuccessful authentication attempts
 function authFailure() {
   authFailureCount++;
+}
+
+// Function to track the number of active users
+function setActiveUsers(userId) {
+  activeUsers.set(userId, Date.now());
+}
+
+// function loggedOutActiveUser(userId) {
+//   activeUsers.delete(userId);
+//   activeUserCount--;
+// }
+
+function getActiveUsers() {
+  const currentTime = Date.now();
+  const fiveMinAgo = currentTime - (5 * 60 * 1000);
+
+  for (const [userId, timestamp] of activeUsers.entries()) {
+    if (timestamp > fiveMinAgo) {
+      activeUserCount++;
+    } else {
+      activeUsers.delete(userId);
+      activeUserCount--;
+    }
+  }
 }
 
 function pizzaLatency(startTime, endTime) {
@@ -87,6 +113,7 @@ setInterval(() => {
   const metrics = [];
   let cpuUsageNum = getCpuUsagePercentage();
   let memoryUsageNum = parseInt(getMemoryUsagePercentage());
+  getActiveUsers();
   Object.keys(requests).forEach((endpoint) => {
     metrics.push(createMetric('requests', requests[endpoint], '1', 'sum', 'asInt', { endpoint }));
     metrics.push(createMetric('greetingChange', greetingChangedCount, '1', 'sum', 'asInt', {}));
@@ -99,6 +126,7 @@ setInterval(() => {
     metrics.push(createMetric('totalRevenue', revenueCount, '1', 'sum', 'asDouble', {}));
     metrics.push(createMetric('authSuccess', authSuccessCount, '1', 'sum', 'asInt', {}));
     metrics.push(createMetric('authFailure', authFailureCount, '1', 'sum', 'asInt', {}));
+    metrics.push(createMetric('activeUsers', activeUserCount, '1', 'sum', 'asInt', {}));
   });
 
   sendMetricToGrafana(metrics);
@@ -194,4 +222,6 @@ module.exports = {
   pizzaPurchaseRevenue,
   authSuccess,
   authFailure,
+  setActiveUsers,
+  getActiveUsers,
  };
