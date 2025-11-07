@@ -173,6 +173,7 @@ class DB {
     const connection = await this.getConnection();
     try {
       await this.query(connection, `DELETE FROM auth WHERE token=?`, [token]);
+      metrics.userLoggedOut(token);
     } finally {
       connection.end();
     }

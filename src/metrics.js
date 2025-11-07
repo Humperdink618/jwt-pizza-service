@@ -45,24 +45,28 @@ function authFailure() {
 }
 
 // Function to track the number of active users
-function setActiveUsers(userId) {
-  activeUsers.set(userId, Date.now());
+function setActiveUsers(token) {
+  activeUsers.set(token, Date.now());
 }
 
 // function loggedOutActiveUser() {
 //   isLoggedOut = true
 // }
+function userLoggedOut(token) {
+  activeUsers.delete(token);
+  activeUserCount--;
+}
 
 // NOTE: still WIP. Talk with TAs to see if I am even doing this right.
 function getActiveUsers() {
   const currentTime = Date.now();
   const fiveMinAgo = currentTime - (5 * 60 * 1000);
 
-  for (const [userId, timestamp] of activeUsers.entries()) {
+  for (const [token, timestamp] of activeUsers.entries()) {
     if (timestamp > fiveMinAgo) {
       activeUserCount++;
     } else {
-      activeUsers.delete(userId);
+      activeUsers.delete(token);
       activeUserCount--;
     }
   }
@@ -225,4 +229,5 @@ module.exports = {
   authFailure,
   setActiveUsers,
   getActiveUsers,
+  userLoggedOut,
  };
