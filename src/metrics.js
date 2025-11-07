@@ -12,6 +12,7 @@ let authSuccessCount = 0;
 let authFailureCount = 0;
 let activeUserCount = 0;
 const activeUsers = new Map();
+// let isLoggedOut = false;
 
 // Function to track when the greeting is changed
 function greetingChanged() {
@@ -48,11 +49,11 @@ function setActiveUsers(userId) {
   activeUsers.set(userId, Date.now());
 }
 
-// function loggedOutActiveUser(userId) {
-//   activeUsers.delete(userId);
-//   activeUserCount--;
+// function loggedOutActiveUser() {
+//   isLoggedOut = true
 // }
 
+// NOTE: still WIP. Talk with TAs to see if I am even doing this right.
 function getActiveUsers() {
   const currentTime = Date.now();
   const fiveMinAgo = currentTime - (5 * 60 * 1000);
